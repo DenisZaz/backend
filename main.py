@@ -12,15 +12,41 @@ def indexTemplate():
 @app.route('/useradd', methods=['POST'])
 def useradd():
     data = request.form.get('username')
+    email = request.form.get('email')
     if data:
         with open('data.txt', 'a') as file:
-            file.write(data + '\n')
-        return redirect(url_for('success'))
+            file.write(data + ':' + email + '\n')
+        return redirect(url_for('indexTemplate'))
     return "No data provided", 400
 
-@app.route('/thank-you')
-def success():
-    return "<h1>Data saved successfully!</h1>"
+@app.route('/get-data', methods=['GET'])
+def get_data():
+    try:
+        with open('data.txt', 'r') as file:
+            content = file.read()
+        return f"""
+            <html>
+            <head><title>Data from file</title></head>
+            <body>
+                <h1>Data from file:</h1>
+                <pre>{content}</pre>
+                <br>
+                <a href="/">Go back</a>
+            </body>
+            </html>
+        """
+    except FileNotFoundError:
+        return """
+            <html>
+            <head><title>No data found</title></head>
+            <body>
+                <h1>No data found!</h1>
+                <br>
+                <a href="/">Go back</a>
+            </body>
+            </html>
+        """
+
 
 if __name__ == '__main__':
     app.run(debug=True)
